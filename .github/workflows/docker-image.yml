@@ -1,0 +1,29 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build the Docker image
+      run: docker build -t ebook-price --target production .
+
+    - name: Run Docker container
+      run: docker-compose up -d
+
+    - name: Test Docker container
+      run: docker exec ebook-price_app_1 npm run test
+
+    - name: Stop and remove Docker container
+      run: docker-compose down
