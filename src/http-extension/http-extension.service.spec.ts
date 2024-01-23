@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpExtensionService } from './http-extension.service';
 import { HttpModule } from '@nestjs/axios';
+import { Logger } from '@nestjs/common';
 
 describe('HttpExtensionService', () => {
   let service: HttpExtensionService;
@@ -8,7 +9,7 @@ describe('HttpExtensionService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [HttpModule.register({})],
-      providers: [HttpExtensionService],
+      providers: [HttpExtensionService, Logger],
     }).compile();
 
     service = module.get<HttpExtensionService>(HttpExtensionService);
