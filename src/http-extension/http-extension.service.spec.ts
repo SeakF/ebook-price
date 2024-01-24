@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpExtensionService } from './http-extension.service';
+import { HttpExtensionService } from 'src/http-extension/http-extension.service';
 import { HttpModule } from '@nestjs/axios';
 import { Logger } from '@nestjs/common';
 
