@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { HttpExtensionService } from 'src/http-extension/http-extension.service';
+import { HttpExtensionService } from '../http-extension/http-extension.service';
 
 @Injectable()
 export class NbpWrapperService {

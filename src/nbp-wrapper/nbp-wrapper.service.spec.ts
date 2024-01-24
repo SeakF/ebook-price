@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NbpWrapperService } from 'src/nbp-wrapper/nbp-wrapper.service';
-import { HttpExtensionModule } from 'src/http-extension/http-extension.module';
+import { NbpWrapperService } from './nbp-wrapper.service';
+import { HttpExtensionModule } from '../http-extension/http-extension.module';
 
 describe('NbpWrapperService', () => {
   let service: NbpWrapperService;
