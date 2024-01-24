@@ -5,5 +5,6 @@ import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [HttpModule.register({})],
   providers: [HttpExtensionService, Logger],
+  exports: [HttpExtensionService],
 })
 export class HttpExtensionModule {}
