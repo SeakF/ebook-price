@@ -23,23 +23,29 @@ export class NbpWrapperService {
       const response = await this.httpExtensionService.instance.get(
         `${this.nbpUrl}/exchangerates/rates/${this.nbpTable}/${currencyCode}/?format=${this.nbpFormat}`,
       );
-  
+
       const result = response.data?.rates[0];
-  
+
       return result;
     } else {
       const response = await this.httpExtensionService.instance.get(
         `${this.nbpUrl}/exchangerates/rates/${this.nbpTable}/${currencyCode}/${dateArrayISO8601[0]}/${dateArrayISO8601[1]}?format=${this.nbpFormat}`,
       );
-  
+
       const firstResult = response.data?.rates[0];
 
-      // only if rare situation happens and there is a weekend between starting date in span and ending date in span and there is no nbp data 
+      // only if rare situation happens and there is a weekend between starting date in span and ending date in span and there is no nbp data
       // then get newest nbp data for certain currency
       if (!firstResult) {
-        let {day, month, year} = this.dateHelpersService.getDateChunks(new Date());
-        month = month + 1;
-        const dateString = this.dateHelpersService.adjustDateString(day, month, year);
+        const { day, month, year } = this.dateHelpersService.getDateChunks(
+          new Date(),
+        );
+
+        const dateString = this.dateHelpersService.adjustDateString(
+          day,
+          month + 1,
+          year,
+        );
 
         const response = await this.httpExtensionService.instance.get(
           `${this.nbpUrl}/exchangerates/rates/${this.nbpTable}/${currencyCode}/${dateString}?format=${this.nbpFormat}`,
@@ -57,8 +63,16 @@ export class NbpWrapperService {
   private getDateMonthSpanInISO8601(
     dateInMiliseconds: number,
   ): [string, string] | [string] {
-    const {day: actualDay, month: actualMonth, year: actualYear} = this.dateHelpersService.getDateChunks(new Date());
-    const dateActualString = this.dateHelpersService.adjustDateString(actualDay, actualMonth + 1, actualYear);
+    const {
+      day: actualDay,
+      month: actualMonth,
+      year: actualYear,
+    } = this.dateHelpersService.getDateChunks(new Date());
+    const dateActualString = this.dateHelpersService.adjustDateString(
+      actualDay,
+      actualMonth + 1,
+      actualYear,
+    );
     const today = new Date(dateActualString);
 
     const dateStart = new Date(dateInMiliseconds);
@@ -67,30 +81,43 @@ export class NbpWrapperService {
       return [dateActualString];
     }
 
-    let {day: dayStart, month: monthStart, year: yearStart} = this.dateHelpersService.getDateChunks(dateStart);
+    const {
+      day: dayStart,
+      month: monthStart,
+      year: yearStart,
+    } = this.dateHelpersService.getDateChunks(dateStart);
 
-    yearStart = yearStart > 2002 ? yearStart : 2002;
+    const yearStartParsed = yearStart > 2002 ? yearStart : 2002;
 
     const dateEnd = new Date(
-      new Date(`${yearStart}-${monthStart + 1}-${dayStart}`).setMonth(
+      new Date(`${yearStartParsed}-${monthStart + 1}-${dayStart}`).setMonth(
         monthStart + 1,
       ),
     );
 
-    const endingDate = dateEnd > today ? today : dateEnd
+    const endingDate = dateEnd > today ? today : dateEnd;
 
-    let {day: dayEnd, month: monthEnd, year: yearEnd} = this.dateHelpersService.getDateChunks(endingDate);
+    const {
+      day: dayEnd,
+      month: monthEnd,
+      year: yearEnd,
+    } = this.dateHelpersService.getDateChunks(endingDate);
 
-    monthStart = monthStart + 1;
-    monthEnd = monthEnd + 1;
+    const monthStartParsed = monthStart + 1;
+    const monthEndParsed = monthEnd + 1;
 
-    const dateStartString = this.dateHelpersService.adjustDateString(dayStart, monthStart, yearStart);
+    const dateStartString = this.dateHelpersService.adjustDateString(
+      dayStart,
+      monthStartParsed,
+      yearStartParsed,
+    );
 
-    const dateEndString = this.dateHelpersService.adjustDateString(dayEnd, monthEnd, yearEnd);
+    const dateEndString = this.dateHelpersService.adjustDateString(
+      dayEnd,
+      monthEndParsed,
+      yearEnd,
+    );
 
-    return [
-      dateStartString,
-      dateEndString,
-    ];
+    return [dateStartString, dateEndString];
   }
 }

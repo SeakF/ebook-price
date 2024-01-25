@@ -6,21 +6,21 @@ import { validateOrReject } from 'class-validator';
 
 @Controller('ebook-price')
 export class EbookPriceController {
-    constructor(private readonly ebookPriceService: EbookPriceService) {}
+  constructor(private readonly ebookPriceService: EbookPriceService) {}
 
-    @Post()
-    async ebookPrice(@Body() ebookData: EbookDataDto[]) {
-        const dtoObject = plainToInstance(EbookDataDto, ebookData);
+  @Post()
+  async ebookPrice(@Body() ebookData: EbookDataDto[]) {
+    const dtoObject = plainToInstance(EbookDataDto, ebookData);
 
-        try {
-            await validateOrReject(dtoObject);
-            return await this.ebookPriceService.calculate(ebookData);
-        } catch (e) {
-            return {
-                statusCode: HttpStatus.BAD_REQUEST,
-                message: 'Validation failed',
-                error: e,
-              }
-        }
+    try {
+      await validateOrReject(dtoObject);
+      return await this.ebookPriceService.calculate(ebookData);
+    } catch (e) {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Validation failed',
+        error: e,
+      };
     }
+  }
 }

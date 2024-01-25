@@ -1,11 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DateHelpersService } from './date-helpers.service';
+import { HelpersModule } from './helpers.module';
 
 describe('DateHelpersService', () => {
   let service: DateHelpersService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [HelpersModule],
       providers: [DateHelpersService],
     }).compile();
 

@@ -1,14 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NbpWrapperService } from './nbp-wrapper.service';
 import { HttpExtensionModule } from '../http-extension/http-extension.module';
+import { HelpersModule } from '../helpers/helpers.module';
 
 describe('NbpWrapperService', () => {
   let service: NbpWrapperService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [HttpExtensionModule],
+      imports: [HttpExtensionModule, HelpersModule],
       providers: [NbpWrapperService],
+      exports: [NbpWrapperService],
     }).compile();
 
     service = module.get<NbpWrapperService>(NbpWrapperService);

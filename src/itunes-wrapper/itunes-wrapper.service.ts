@@ -14,7 +14,9 @@ export class ItunesWrapperService {
         name,
       )}+${this.replaceSpaceSign(
         title,
-      )}&entity=ebook&attribute=authorTerm&attribute=titleTerm&limit=${this.limitPerRequest}`,
+      )}&entity=ebook&attribute=authorTerm&attribute=titleTerm&limit=${
+        this.limitPerRequest
+      }`,
     );
     return response.data;
   }
