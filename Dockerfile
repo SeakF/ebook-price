@@ -3,6 +3,8 @@ FROM node:18.18.0-alpine as development
 WORKDIR /app
 
 COPY package*.json ./
+COPY prisma ./prisma/
+COPY .env ./
 COPY tsconfig.json ./
 
 RUN npm ci 
@@ -18,6 +20,8 @@ FROM node:18.18.0-alpine as production
 WORKDIR /app
 
 COPY package*.json ./
+COPY prisma ./prisma/
+COPY .env ./
 COPY tsconfig.json ./
 RUN npm ci
 

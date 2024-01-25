@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { NbpWrapperService } from '../nbp-wrapper/nbp-wrapper.service';
 import { ItunesWrapperService } from '../itunes-wrapper/itunes-wrapper.service';
 import { DateHelpersService } from '../helpers/date-helpers.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 interface ebookNameTitle {
   name: string;
@@ -14,6 +15,7 @@ export class EbookPriceService {
     private readonly nbpWrapperService: NbpWrapperService,
     private readonly itunesWrapperService: ItunesWrapperService,
     private readonly dateHelpersService: DateHelpersService,
+    private readonly prismaService: PrismaService,
   ) {}
 
   async calculate(nameTitleArray: ebookNameTitle[]) {
@@ -48,18 +50,37 @@ export class EbookPriceService {
         year,
       );
 
+      const pricePLN = this.calculateWithExchangeRate(
+        firstNbpResult.mid,
+        itunesResult.price,
+      );
+
+      await this.prismaService.db.itunesData.create({
+        data: {
+          name: itunesResult.artistName,
+          title: itunesResult.trackName,
+          curr: itunesResult.currency,
+          price: itunesResult.price || 0,
+          date: releaseDateString,
+          fromNBP: {
+            create: {
+              rate: firstNbpResult.mid,
+              pricePLN: pricePLN || 0,
+              tableNo: firstNbpResult.no,
+            },
+          },
+        },
+      });
+
       resolvedResult.push({
         name: itunesResult.artistName,
         title: itunesResult.trackName,
         curr: itunesResult.currency,
-        price: itunesResult.price,
+        price: itunesResult.price || 0,
         date: releaseDateString,
         fromNBP: {
           rate: firstNbpResult.mid,
-          pricePLN: this.calculateWithExchangeRate(
-            firstNbpResult.mid,
-            itunesResult.price,
-          ),
+          pricePLN: pricePLN || 0,
           tableNo: firstNbpResult.no,
         },
       });

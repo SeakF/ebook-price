@@ -1,12 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { HttpExtensionService } from '../http-extension/http-extension.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ItunesWrapperService {
-  private readonly itunesUrl = 'https://itunes.apple.com/';
+  private readonly itunesUrl: string;
   private readonly limitPerRequest = 10;
 
-  constructor(private readonly httpExtensionService: HttpExtensionService) {}
+  constructor(
+    private readonly httpExtensionService: HttpExtensionService,
+    private readonly configService: ConfigService,
+  ) {
+    this.itunesUrl = this.configService.get('ITUNES_URL');
+  }
 
   async fetch(name: string, title: string) {
     const response = await this.httpExtensionService.instance.get(
