@@ -24,3 +24,11 @@
 
 ### To check data in database:
 ```docker exec ebook-price-app-1 npx prisma studio```
+
+### Endpoint example
+```http://localhost:3000/ebook-price```
+```[{
+    "name": "Agatha Christie",
+    "title": "Murder on the Orient Express"
+}]
+```
