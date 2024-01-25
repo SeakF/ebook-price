@@ -22,7 +22,7 @@ export class HttpExtensionService {
       },
       retryDelay: axiosRetry.exponentialDelay,
       retryCondition: (error) => {
-        return error.response?.status !== 404;
+        return error.response?.status !== 404 && error.response?.status !== 400;
       },
     });
 
