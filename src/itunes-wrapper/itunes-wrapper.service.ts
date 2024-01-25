@@ -4,6 +4,7 @@ import { HttpExtensionService } from '../http-extension/http-extension.service';
 @Injectable()
 export class ItunesWrapperService {
   private readonly itunesUrl = 'https://itunes.apple.com/';
+  private readonly limitPerRequest = 10;
 
   constructor(private readonly httpExtensionService: HttpExtensionService) {}
 
@@ -13,12 +14,19 @@ export class ItunesWrapperService {
         name,
       )}+${this.replaceSpaceSign(
         title,
-      )}&entity=ebook&attribute=authorTerm&attribute=titleTerm`,
+      )}&entity=ebook&attribute=authorTerm&attribute=titleTerm&limit=${
+        this.limitPerRequest
+      }`,
     );
     return response.data;
   }
 
   private replaceSpaceSign(sentence: string) {
-    return sentence.split(' ').join('+');
+    return this.removeKeywordThe(sentence.split(' ')).join('+');
+  }
+
+  private removeKeywordThe(wordArray: string[]) {
+    const asd = wordArray.filter((word) => word.toLowerCase() !== 'the');
+    return asd;
   }
 }

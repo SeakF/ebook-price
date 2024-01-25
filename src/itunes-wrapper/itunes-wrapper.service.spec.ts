@@ -9,6 +9,7 @@ describe('ItunesWrapperService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [HttpExtensionModule],
       providers: [ItunesWrapperService],
+      exports: [ItunesWrapperService],
     }).compile();
 
     service = module.get<ItunesWrapperService>(ItunesWrapperService);
