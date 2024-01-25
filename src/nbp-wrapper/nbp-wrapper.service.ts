@@ -1,23 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { HttpExtensionService } from '../http-extension/http-extension.service';
 import { DateHelpersService } from '../helpers/date-helpers.service';
+import { ConfigService } from '@nestjs/config';
+import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { addDays } from 'date-fns';
 
 @Injectable()
 export class NbpWrapperService {
-  private readonly nbpUrl = 'http://api.nbp.pl/api';
+  private readonly nbpUrl: string;
   private readonly nbpFormat = 'json';
 
   private readonly nbpTable = 'a';
 
+  private readonly numberOfDaysCacheWillCheck = 5;
+
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly httpExtensionService: HttpExtensionService,
     private readonly dateHelpersService: DateHelpersService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.nbpUrl = this.configService.get('NBP_URL');
+  }
 
   async fetch(dateInMiliseconds: number | string, currencyCode: string) {
     const dateArrayISO8601 = this.getDateMonthSpanInISO8601(
       Number(dateInMiliseconds),
     );
+
+    const cachedResults = await this.checkInCache(
+      currencyCode,
+      dateArrayISO8601[0],
+    );
+
+    if (cachedResults.length > 0) {
+      return cachedResults[0];
+    }
 
     if (dateArrayISO8601.length == 1) {
       const response = await this.httpExtensionService.instance.get(
@@ -25,6 +44,8 @@ export class NbpWrapperService {
       );
 
       const result = response.data?.rates[0];
+
+      result && this.saveToCache(response.data.rates, currencyCode);
 
       return result;
     } else {
@@ -53,8 +74,12 @@ export class NbpWrapperService {
 
         const result = response.data?.rates[0];
 
+        result && this.saveToCache(response.data.rates, currencyCode);
+
         return result;
       } else {
+        firstResult && this.saveToCache(response.data.rates, currencyCode);
+
         return firstResult;
       }
     }
@@ -119,5 +144,42 @@ export class NbpWrapperService {
     );
 
     return [dateStartString, dateEndString];
+  }
+
+  private async checkInCache(currency: string, startDate: string) {
+    const keys: string[] = [];
+    for (let i = 0; i < this.numberOfDaysCacheWillCheck; i++) {
+      const incrementedDateByDay = addDays(new Date(startDate), i);
+      const { day, month, year } =
+        this.dateHelpersService.getDateChunks(incrementedDateByDay);
+      const parsedMonth = month + 1;
+      const adjustedDateString = this.dateHelpersService.adjustDateString(
+        day,
+        parsedMonth,
+        year,
+      );
+      keys.push(`cache:currency_rates:${currency}:${adjustedDateString}`);
+    }
+
+    const values = await this.cacheManager.store.mget(...keys);
+
+    const result = [];
+    values.forEach((value) => {
+      value && value != 'nil' && value != '(nil)' && result.push(value);
+    });
+
+    return result;
+  }
+
+  private saveToCache(
+    rates: Record<string, string | number>[],
+    currency: string,
+  ) {
+    rates.forEach((value) => {
+      this.cacheManager.set(
+        `cache:currency_rates:${currency}:${value.effectiveDate}`,
+        value,
+      );
+    });
   }
 }

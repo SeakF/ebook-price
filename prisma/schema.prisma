@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ItunesData {
+  id       String      @id @default(uuid())
+  name     String
+  title    String
+  curr     String
+  price    Float
+  date     String
+  fromNBP  NbpData?
+}
+
+model NbpData {
+  id       String      @id @default(uuid())
+  rate     Float
+  pricePLN Float
+  tableNo  String 
+  itunes   ItunesData @relation(fields: [itunesDataId], references: [id])
+  itunesDataId String @unique 
+}
