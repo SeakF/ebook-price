@@ -27,7 +27,8 @@
 
 ### Endpoint example
 ```http://localhost:3000/ebook-price```
-```[{
+```
+[{
     "name": "Agatha Christie",
     "title": "Murder on the Orient Express"
 }]
